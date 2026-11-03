@@ -8,3 +8,6 @@ images/**
 VscodetoUnityImg.png
 *.vsix
 README.md
+unity-editor-script/**
+dist/**
+install.sh

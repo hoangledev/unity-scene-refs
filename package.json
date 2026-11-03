@@ -98,7 +98,8 @@
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "package": "IMAGE_BASE_URL=${IMAGE_BASE_URL-https://raw.githubusercontent.com/hoangledev/unity-scene-refs/main} node scripts/embed-readme-images.js && npx @vscode/vsce package --no-dependencies --allow-missing-repository --no-rewrite-relative-links --readme-path build/README.md"
+    "package": "IMAGE_BASE_URL=${IMAGE_BASE_URL-https://raw.githubusercontent.com/hoangledev/unity-scene-refs/main} node scripts/embed-readme-images.js && npx @vscode/vsce package --no-dependencies --allow-missing-repository --no-rewrite-relative-links --readme-path build/README.md",
+    "release": "npm run compile && npm run package && mkdir -p dist && cp unity-scene-refs-$npm_package_version.vsix dist/unity-scene-refs.vsix"
   },
   "devDependencies": {
     "@types/vscode": "^1.80.0",

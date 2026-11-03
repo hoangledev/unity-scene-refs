@@ -54,46 +54,45 @@ Find Unity scene, prefab, and animation references directly in **Visual Studio C
 
 ---
 
-## 📦 Package Components
+## 🛠️ Cài đặt (cho cả team)
+
+### Cách 1: Một lệnh duy nhất (Khuyên dùng)
+
+Mở Terminal và chạy (thay đường dẫn bằng project Unity của bạn):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/hoangledev/unity-scene-refs/main/install.sh | bash -s -- ~/path/to/UnityProject
+```
+
+Script sẽ:
+1. Tải bản extension mới nhất và cài vào **mọi editor tìm thấy** (VS Code, Cursor, Antigravity IDE).
+2. Copy `UnitySceneRefsBridge.cs` vào `Assets/Editor/UnitySceneRefs/` của project Unity (bỏ qua nếu project đã có bridge).
+
+Sau đó: `Cmd + Shift + P` → **`Developer: Reload Window`**. Chạy lại đúng lệnh trên bất cứ lúc nào để **cập nhật** lên bản mới.
+
+> Nếu bridge đã được commit sẵn vào repo game, chỉ cần bỏ đường dẫn project ở cuối lệnh.
+
+---
+
+### Cách 2: Cài thủ công
+
+1. Tải [`unity-scene-refs.vsix`](https://github.com/hoangledev/unity-scene-refs/raw/main/dist/unity-scene-refs.vsix).
+2. Trong VS Code / Cursor: `Cmd + Shift + P` → **`Extensions: Install from VSIX...`** → chọn file vừa tải.
+3. Tải [`UnitySceneRefsBridge.cs`](https://github.com/hoangledev/unity-scene-refs/raw/main/unity-editor-script/UnitySceneRefsBridge.cs) và đặt vào một thư mục `Editor` bất kỳ trong `Assets/` của project Unity.
+   *(Nếu project đã có `CursorBridge.cs` thì không cần — đừng để cả hai cùng lúc vì sẽ tranh cổng 7892.)*
+4. `Cmd + Shift + P` → **`Developer: Reload Window`**.
+
+---
+
+## 📦 Repo Structure
 
 | Path | Purpose |
 |------|---------|
-| `vscode-extension/` | Extension source code (TypeScript, icons, fonts, images) |
-| `cursor-extension` | Symlink pointing to `vscode-extension/` for backward compatibility |
+| `src/` | Extension source code (TypeScript) |
+| `icons/`, `images/` | Gutter/CodeLens icons, fonts and README screenshots |
 | `unity-editor-script/UnitySceneRefsBridge.cs` | HTTP bridge script for Unity Editor (port 7892) |
-| `unity-editor-script/CursorBridge.cs` | Legacy alias bridge script (same functionality) |
-| `unity-scene-refs-1.1.0.vsix` | Pre-packaged VSIX ready to install |
-| `install.sh` | Universal installer for VS Code, Cursor, and Antigravity IDE |
-
----
-
-## 🛠️ Installation
-
-### Cách 1: Cài đặt tự động bằng Script (Khuyên dùng)
-
-Chạy script cài đặt:
-```bash
-cd /Users/hoangle/_WorkSpace/unity-scene-refs-package
-./install.sh
-```
-Script sẽ tự động tìm tất cả các editor đã cài trên máy (VS Code, Cursor, Antigravity) và cài extension vào từng editor.
-
-Sau đó copy file Bridge vào thư mục Editor của project Unity:
-```bash
-cp unity-editor-script/UnitySceneRefsBridge.cs /path/to/your/UnityProject/Assets/_Project/Editor/
-```
-*(Lưu ý: Nếu project đã có `CursorBridge.cs` thì không cần copy thêm, cả hai đều tương thích hoàn toàn).*
-
----
-
-### Cách 2: Cài thủ công qua giao diện Editor
-
-1. Mở **Visual Studio Code** hoặc **Cursor**.
-2. Nhấn `Cmd + Shift + P` (hoặc `Ctrl + Shift + P`).
-3. Nhập và chọn **`Extensions: Install from VSIX...`**.
-4. Chọn file `unity-scene-refs-1.1.0.vsix`.
-5. Đảm bảo file `UnitySceneRefsBridge.cs` (hoặc `CursorBridge.cs`) đã có trong thư mục `Assets/.../Editor/` của Unity.
-6. Tải lại cửa sổ: `Cmd + Shift + P` → **`Developer: Reload Window`**.
+| `dist/unity-scene-refs.vsix` | Latest pre-built package (used by `install.sh`) |
+| `install.sh` | Installer for VS Code, Cursor and Antigravity IDE |
 
 ---
 
@@ -122,14 +121,16 @@ Tuỳ chỉnh qua giao diện Settings hoặc file `.vscode/settings.json`:
 
 ---
 
-## 🏗️ Build từ mã nguồn
+## 🏗️ Build & phát hành bản mới
 
 ```bash
-cd vscode-extension
 npm install
-npm run compile
-npx @vscode/vsce package --no-dependencies --allow-missing-repository
+# tăng "version" trong package.json, rồi:
+npm run release      # compile + đóng gói + cập nhật dist/unity-scene-refs.vsix
+git add -A && git commit -m "Release vX.Y.Z" && git push
 ```
+
+Ảnh trong README được trỏ tới GitHub (VS Code không hiển thị ảnh local trong tab Details), nên chỉ cần push là ảnh mới hiển thị.
 
 ---
 

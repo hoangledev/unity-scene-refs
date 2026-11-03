@@ -3,3 +3,4 @@ out/
 build/
 *.vsix
 .DS_Store
+!dist/*.vsix
