@@ -1,0 +1,10 @@
+src/**
+node_modules/**
+tsconfig.json
+.gitignore
+scripts/**
+build/**
+images/**
+VscodetoUnityImg.png
+*.vsix
+README.md
