@@ -1,3 +1,6 @@
+// Editor-only: the whole file is stripped from player builds, even if it is
+// placed outside an Editor folder or in a non-editor assembly.
+#if UNITY_EDITOR
 using System;
 using System.Diagnostics;
 using System.Net;
@@ -395,3 +398,4 @@ public static class UnitySceneRefsBridge
         Debug.Log($"[UnitySceneRefs] Selected '{goToSelect.name}' ({reason})");
     }
 }
+#endif
