@@ -35,10 +35,12 @@ Trọng tâm: **phát hành cho cả team** — cài một lệnh, an toàn cho 
      | Chưa có bridge | Chép vào `Assets/Editor/UnitySceneRefs/UnitySceneRefsBridge.cs` |
      | `UnitySceneRefsBridge.cs` bản cũ | Ghi đè bằng bản mới nhất, giữ nguyên vị trí |
      | `UnitySceneRefsBridge.cs` đã mới nhất | Không làm gì, báo "up to date" |
-     | `CursorBridge.cs` | Đổi tên thành `UnitySceneRefsBridge.cs` tại cùng thư mục, đổi tên cả `.meta` (giữ GUID), rồi cập nhật nội dung |
+     | `CursorBridge.cs` | Đổi tên thành `UnitySceneRefsBridge.cs` tại cùng thư mục (kèm `.meta`), rồi cập nhật nội dung |
      | Có cả hai | Xoá `CursorBridge.cs` + `.meta` (hai bridge sẽ tranh cổng 7892), cập nhật bản còn lại |
 
      Mỗi khi có thay đổi, installer nhắc commit bridge vào repo game.
+   - **GUID cố định**: bridge đi kèm `UnitySceneRefsBridge.cs.meta` với GUID `458543293cdb845d29ebe6dddb2af7b9`; installer luôn đặt `.meta` về đúng GUID này (bridge là class Editor tĩnh, không asset nào tham chiếu theo GUID nên đổi GUID là an toàn). Các thư mục installer tự tạo (`Assets/Editor`, `Assets/Editor/UnitySceneRefs`) cũng có `.meta` với GUID cố định; thư mục đã có sẵn thì không bị đụng tới.
+     → Hai người ở hai nhánh khác nhau cùng cài bridge sẽ tạo ra file giống hệt nhau, merge không còn conflict `.meta`.
 4. _[Cài đặt]_ **`npm run release`**: compile → sinh README với link ảnh → đóng gói → chép sang `dist/unity-scene-refs.vsix`.
 5. _[Cài đặt]_ Hướng dẫn cài đặt cho team trong README (cài một lệnh, cài thủ công với link tải trực tiếp, cấu trúc repo, cách phát hành bản mới) và file CHANGELOG này (hiện ở tab **CHANGELOG** của extension).
 

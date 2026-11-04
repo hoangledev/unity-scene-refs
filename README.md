@@ -66,7 +66,7 @@ curl -fsSL https://raw.githubusercontent.com/hoangledev/unity-scene-refs/main/in
 
 Script sẽ:
 1. Tải bản extension mới nhất và cài vào **mọi editor tìm thấy** (VS Code, Cursor, Antigravity IDE).
-2. Cài `UnitySceneRefsBridge.cs` vào `Assets/Editor/UnitySceneRefs/` của project Unity. Nếu project đã có bridge thì **cập nhật tại chỗ** lên bản mới nhất (`CursorBridge.cs` cũ được đổi tên thành `UnitySceneRefsBridge.cs`, giữ nguyên GUID). Nhớ commit thay đổi này vào repo game.
+2. Cài `UnitySceneRefsBridge.cs` vào `Assets/Editor/UnitySceneRefs/` của project Unity. Nếu project đã có bridge thì **cập nhật tại chỗ** lên bản mới nhất (`CursorBridge.cs` cũ được đổi tên thành `UnitySceneRefsBridge.cs`). File `.meta` luôn có GUID cố định nên nhiều người/nhiều nhánh cùng cài cũng không bị conflict khi merge. Nhớ commit thay đổi này vào repo game.
 
 Sau đó: `Cmd + Shift + P` → **`Developer: Reload Window`**. Chạy lại đúng lệnh trên bất cứ lúc nào để **cập nhật** lên bản mới.
 
@@ -78,7 +78,7 @@ Sau đó: `Cmd + Shift + P` → **`Developer: Reload Window`**. Chạy lại đ�
 
 1. Tải [`unity-scene-refs.vsix`](https://github.com/hoangledev/unity-scene-refs/raw/main/dist/unity-scene-refs.vsix).
 2. Trong VS Code / Cursor: `Cmd + Shift + P` → **`Extensions: Install from VSIX...`** → chọn file vừa tải.
-3. Tải [`UnitySceneRefsBridge.cs`](https://github.com/hoangledev/unity-scene-refs/raw/main/unity-editor-script/UnitySceneRefsBridge.cs) và đặt vào một thư mục `Editor` bất kỳ trong `Assets/` của project Unity.
+3. Tải [`UnitySceneRefsBridge.cs`](https://github.com/hoangledev/unity-scene-refs/raw/main/unity-editor-script/UnitySceneRefsBridge.cs) và [`UnitySceneRefsBridge.cs.meta`](https://github.com/hoangledev/unity-scene-refs/raw/main/unity-editor-script/UnitySceneRefsBridge.cs.meta) (GUID cố định), đặt cả hai vào một thư mục `Editor` bất kỳ trong `Assets/` của project Unity.
    *(Nếu project đã có `CursorBridge.cs` thì không cần — đừng để cả hai cùng lúc vì sẽ tranh cổng 7892.)*
 4. `Cmd + Shift + P` → **`Developer: Reload Window`**.
 

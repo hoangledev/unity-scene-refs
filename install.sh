@@ -95,11 +95,22 @@ elif [ ! -d "$UNITY_PROJECT/Assets" ]; then
 else
     LATEST_BRIDGE="$TMP_DIR/UnitySceneRefsBridge.cs"
     fetch "unity-editor-script/UnitySceneRefsBridge.cs" "$LATEST_BRIDGE"
+    # The bridge ships with a fixed .meta GUID so every install, on every branch, produces
+    # byte-identical files and merges without .meta conflicts.
+    fetch "unity-editor-script/UnitySceneRefsBridge.cs.meta" "$LATEST_BRIDGE.meta"
+
+    # Folders created by this installer also get fixed GUIDs (Unity would otherwise generate
+    # random ones per machine). $1 = folder path, $2 = GUID.
+    make_folder() {
+        [ -d "$1" ] && return
+        mkdir -p "$1"
+        [ -f "$1.meta" ] || printf 'fileFormatVersion: 2\nguid: %s\nfolderAsset: yes\nDefaultImporter:\n  externalObjects: {}\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n' "$2" > "$1.meta"
+    }
 
     CURRENT="$(find "$UNITY_PROJECT/Assets" -name UnitySceneRefsBridge.cs -print -quit)"
     CHANGED=false
 
-    # Legacy CursorBridge.cs: rename in place (keeping its .meta GUID), or remove it when the
+    # Legacy CursorBridge.cs: rename in place, or remove it when the
     # project already has UnitySceneRefsBridge.cs — two bridges would fight over the same port.
     while IFS= read -r legacy; do
         [ -n "$legacy" ] || continue
@@ -110,14 +121,15 @@ else
             CURRENT="$(dirname "$legacy")/UnitySceneRefsBridge.cs"
             mv "$legacy" "$CURRENT"
             [ -f "$legacy.meta" ] && mv "$legacy.meta" "$CURRENT.meta"
-            echo "  🔁 Renamed ${legacy#$UNITY_PROJECT/} → UnitySceneRefsBridge.cs (GUID kept)"
+            echo "  🔁 Renamed ${legacy#$UNITY_PROJECT/} → UnitySceneRefsBridge.cs"
         fi
         CHANGED=true
     done < <(find "$UNITY_PROJECT/Assets" -name CursorBridge.cs)
 
     if [ -z "$CURRENT" ]; then
         CURRENT="$UNITY_PROJECT/Assets/Editor/UnitySceneRefs/UnitySceneRefsBridge.cs"
-        mkdir -p "$(dirname "$CURRENT")"
+        make_folder "$UNITY_PROJECT/Assets/Editor" b2eda7cb896d5cec08e7102be3422eb8
+        make_folder "$UNITY_PROJECT/Assets/Editor/UnitySceneRefs" e326e6e4bf9f7c37279011f2c6ee101a
         cp "$LATEST_BRIDGE" "$CURRENT"
         echo "  ✅ Copied bridge to ${CURRENT#$UNITY_PROJECT/}"
         CHANGED=true
@@ -127,6 +139,14 @@ else
         CHANGED=true
     else
         echo "  ✅ Bridge is up to date: ${CURRENT#$UNITY_PROJECT/}"
+    fi
+
+    # The bridge is a static editor class that nothing references by GUID, so switching an
+    # older random GUID to the fixed one is safe.
+    if ! cmp -s "$LATEST_BRIDGE.meta" "$CURRENT.meta"; then
+        cp "$LATEST_BRIDGE.meta" "$CURRENT.meta"
+        echo "  🔑 Set fixed GUID in ${CURRENT#$UNITY_PROJECT/}.meta"
+        CHANGED=true
     fi
 
     if [ "$CHANGED" = true ]; then
