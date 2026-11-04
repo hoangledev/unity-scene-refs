@@ -139,21 +139,33 @@ export class UnityRefIndex {
     private statusItem: vscode.StatusBarItem;
     private cacheFilePath: string | undefined;
 
-    constructor(statusItem: vscode.StatusBarItem) {
+    constructor(statusItem: vscode.StatusBarItem, storageDir: string | undefined) {
         this.statusItem = statusItem;
-        this.initCachePath();
+        this.initCachePath(storageDir);
         this.loadCacheFromDisk();
     }
 
-    private initCachePath() {
+    // The cache lives in VS Code's per-workspace storage (outside the project), so it never
+    // ends up in the game repo. Caches written inside the project by older versions are moved there.
+    private initCachePath(storageDir: string | undefined) {
+        if (!storageDir) return;
+        this.cacheFilePath = path.join(storageDir, 'unityrefs.cache.json');
+
         const folders = vscode.workspace.workspaceFolders;
         if (!folders || folders.length === 0) return;
         const root = folders[0].uri.fsPath;
-        const vscodeDir = path.join(root, '.vscode');
-        if (fs.existsSync(vscodeDir)) {
-            this.cacheFilePath = path.join(vscodeDir, 'unityrefs.cache.json');
-        } else {
-            this.cacheFilePath = path.join(root, '.unityrefs.cache.json');
+        for (const legacy of [path.join(root, '.vscode', 'unityrefs.cache.json'), path.join(root, '.unityrefs.cache.json')]) {
+            if (!fs.existsSync(legacy)) continue;
+            try {
+                if (!fs.existsSync(this.cacheFilePath)) {
+                    fs.mkdirSync(storageDir, { recursive: true });
+                    fs.copyFileSync(legacy, this.cacheFilePath);
+                }
+                fs.unlinkSync(legacy);
+                log.appendLine(`Moved legacy cache out of the project: ${legacy}`);
+            } catch (err: any) {
+                log.appendLine(`Failed to move legacy cache ${legacy}: ${err.message}`);
+            }
         }
     }
 
@@ -1101,7 +1113,7 @@ const CS_KEYWORDS = new Set([
 // ── Activation ────────────────────────────────────────────────────────
 
 export function activate(context: vscode.ExtensionContext) {
-    log.appendLine('Unity Scene References extension activated (v1.1.0)');
+    log.appendLine(`Unity Scene References extension activated (v${context.extension.packageJSON.version})`);
 
     const statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 50);
     statusItem.command = 'unitySceneRefs.refresh';
@@ -1110,7 +1122,7 @@ export function activate(context: vscode.ExtensionContext) {
     statusItem.show();
     context.subscriptions.push(statusItem);
 
-    const index = new UnityRefIndex(statusItem);
+    const index = new UnityRefIndex(statusItem, context.storageUri?.fsPath);
     const codeLensProvider = new UnityRefCodeLensProvider(index, context.extensionPath);
 
     context.subscriptions.push(

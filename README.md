@@ -47,7 +47,7 @@ Find Unity scene, prefab, and animation references directly in **Visual Studio C
 ---
 
 ### 5. ⚡ Incremental Cache cực nhanh (< 750ms)
-- Lưu metadata và timestamp (`mtime`) xuống file `.vscode/unityrefs.cache.json`.
+- Lưu metadata và timestamp (`mtime`) vào bộ nhớ riêng của VS Code cho từng workspace (nằm ngoài project, không bao giờ lọt vào git — không cần thêm `.gitignore`).
 - Sử dụng bộ lọc nhanh trước khi tách dòng, bỏ qua hàng nghìn file YAML không chứa reference.
 - **Tự động cập nhật**: FileWatcher tự quét lại các file vừa sửa khi bạn bấm Save trong Unity.
 - **Tự làm sạch (Garbage Collection)**: Tự động loại bỏ cache của các file đã bị xóa trong Unity.

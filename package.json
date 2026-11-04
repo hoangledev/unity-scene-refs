@@ -2,7 +2,7 @@
   "name": "unity-scene-refs",
   "displayName": "Unity Scene References",
   "description": "Shows Unity scene/prefab/animation references for C# methods and component usages as CodeLens (like Rider) in VS Code & Cursor",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "publisher": "local",
   "icon": "icon.png",
   "repository": {
