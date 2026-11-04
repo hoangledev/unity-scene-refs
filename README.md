@@ -82,6 +82,8 @@ Sau đó: `Cmd + Shift + P` → **`Developer: Reload Window`**. Chạy lại đ�
    *(Nếu project đã có `CursorBridge.cs` thì không cần — đừng để cả hai cùng lúc vì sẽ tranh cổng 7892.)*
 4. `Cmd + Shift + P` → **`Developer: Reload Window`**.
 
+> **An toàn cho cả team:** bridge chỉ chạy trong Unity Editor (bọc `#if UNITY_EDITOR`, không có trong bản build). Trên máy **không cài extension**, bridge hoàn toàn không làm gì — không mở cổng, không log — nên có thể commit thẳng vào repo game.
+
 ---
 
 ## 📦 Repo Structure

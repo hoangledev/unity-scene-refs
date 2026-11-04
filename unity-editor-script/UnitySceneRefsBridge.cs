@@ -24,11 +24,52 @@ public static class UnitySceneRefsBridge
     private static volatile string _pendingClassName;
     private static volatile string _pendingGoName;
 
+    // Editors whose extension folders are checked for the Unity Scene References extension.
+    private static readonly string[] ExtensionRoots = { ".vscode", ".cursor", ".antigravity-ide" };
+    private const double ExtensionCheckInterval = 10;
+    private static double _nextExtensionCheck;
+
     static UnitySceneRefsBridge()
+    {
+        // Do nothing (no port, no logs) for users who don't have the extension installed.
+        if (IsExtensionInstalled())
+            Activate();
+        else
+            EditorApplication.update += WaitForExtension;
+    }
+
+    private static void Activate()
     {
         StartServer();
         EditorApplication.update += ProcessPending;
         AssemblyReloadEvents.beforeAssemblyReload += StopServer;
+    }
+
+    // Picks up an extension installed while Unity is open, without needing a recompile.
+    private static void WaitForExtension()
+    {
+        if (EditorApplication.timeSinceStartup < _nextExtensionCheck) return;
+        _nextExtensionCheck = EditorApplication.timeSinceStartup + ExtensionCheckInterval;
+        if (!IsExtensionInstalled()) return;
+        EditorApplication.update -= WaitForExtension;
+        Activate();
+    }
+
+    private static bool IsExtensionInstalled()
+    {
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        foreach (var root in ExtensionRoots)
+        {
+            try
+            {
+                var dir = System.IO.Path.Combine(home, root, "extensions");
+                if (System.IO.Directory.Exists(dir) &&
+                    System.IO.Directory.GetDirectories(dir, "*.unity-scene-refs-*").Length > 0)
+                    return true;
+            }
+            catch { }
+        }
+        return false;
     }
 
     private static void StartServer()
