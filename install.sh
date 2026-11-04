@@ -4,8 +4,9 @@
 # From a clone of the repo:   ./install.sh [/path/to/UnityProject]
 # Without cloning:            curl -fsSL https://raw.githubusercontent.com/hoangledev/unity-scene-refs/main/install.sh | bash -s -- [/path/to/UnityProject]
 #
-# When a Unity project path is given, the Editor bridge script is copied into
-# <project>/Assets/Editor/UnitySceneRefs/ (skipped if the project already has it).
+# When a Unity project path is given, the Editor bridge script is installed into
+# <project>/Assets/Editor/UnitySceneRefs/, or an existing bridge (including a legacy
+# CursorBridge.cs) is updated in place to the latest version.
 set -e
 
 REPO_RAW="https://raw.githubusercontent.com/hoangledev/unity-scene-refs/main"
@@ -92,14 +93,44 @@ if [ -z "$UNITY_PROJECT" ]; then
 elif [ ! -d "$UNITY_PROJECT/Assets" ]; then
     echo "  ⚠️  '$UNITY_PROJECT' is not a Unity project (no Assets folder) — bridge not installed"
 else
-    EXISTING="$(find "$UNITY_PROJECT/Assets" \( -name UnitySceneRefsBridge.cs -o -name CursorBridge.cs \) -print -quit)"
-    if [ -n "$EXISTING" ]; then
-        echo "  ✅ Bridge already in project: ${EXISTING#$UNITY_PROJECT/}"
+    LATEST_BRIDGE="$TMP_DIR/UnitySceneRefsBridge.cs"
+    fetch "unity-editor-script/UnitySceneRefsBridge.cs" "$LATEST_BRIDGE"
+
+    CURRENT="$(find "$UNITY_PROJECT/Assets" -name UnitySceneRefsBridge.cs -print -quit)"
+    CHANGED=false
+
+    # Legacy CursorBridge.cs: rename in place (keeping its .meta GUID), or remove it when the
+    # project already has UnitySceneRefsBridge.cs — two bridges would fight over the same port.
+    while IFS= read -r legacy; do
+        [ -n "$legacy" ] || continue
+        if [ -n "$CURRENT" ]; then
+            rm -f "$legacy" "$legacy.meta"
+            echo "  🗑  Removed duplicate legacy bridge: ${legacy#$UNITY_PROJECT/}"
+        else
+            CURRENT="$(dirname "$legacy")/UnitySceneRefsBridge.cs"
+            mv "$legacy" "$CURRENT"
+            [ -f "$legacy.meta" ] && mv "$legacy.meta" "$CURRENT.meta"
+            echo "  🔁 Renamed ${legacy#$UNITY_PROJECT/} → UnitySceneRefsBridge.cs (GUID kept)"
+        fi
+        CHANGED=true
+    done < <(find "$UNITY_PROJECT/Assets" -name CursorBridge.cs)
+
+    if [ -z "$CURRENT" ]; then
+        CURRENT="$UNITY_PROJECT/Assets/Editor/UnitySceneRefs/UnitySceneRefsBridge.cs"
+        mkdir -p "$(dirname "$CURRENT")"
+        cp "$LATEST_BRIDGE" "$CURRENT"
+        echo "  ✅ Copied bridge to ${CURRENT#$UNITY_PROJECT/}"
+        CHANGED=true
+    elif ! cmp -s "$LATEST_BRIDGE" "$CURRENT"; then
+        cp "$LATEST_BRIDGE" "$CURRENT"
+        echo "  ⬆️  Updated bridge to the latest version: ${CURRENT#$UNITY_PROJECT/}"
+        CHANGED=true
     else
-        DEST="$UNITY_PROJECT/Assets/Editor/UnitySceneRefs"
-        mkdir -p "$DEST"
-        fetch "unity-editor-script/UnitySceneRefsBridge.cs" "$DEST/UnitySceneRefsBridge.cs"
-        echo "  ✅ Copied bridge to Assets/Editor/UnitySceneRefs/UnitySceneRefsBridge.cs"
+        echo "  ✅ Bridge is up to date: ${CURRENT#$UNITY_PROJECT/}"
+    fi
+
+    if [ "$CHANGED" = true ]; then
+        echo "  👉 Commit the bridge changes to your game repo so the whole team gets them."
     fi
 fi
 

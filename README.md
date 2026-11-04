@@ -66,7 +66,7 @@ curl -fsSL https://raw.githubusercontent.com/hoangledev/unity-scene-refs/main/in
 
 Script sẽ:
 1. Tải bản extension mới nhất và cài vào **mọi editor tìm thấy** (VS Code, Cursor, Antigravity IDE).
-2. Copy `UnitySceneRefsBridge.cs` vào `Assets/Editor/UnitySceneRefs/` của project Unity (bỏ qua nếu project đã có bridge).
+2. Cài `UnitySceneRefsBridge.cs` vào `Assets/Editor/UnitySceneRefs/` của project Unity. Nếu project đã có bridge thì **cập nhật tại chỗ** lên bản mới nhất (`CursorBridge.cs` cũ được đổi tên thành `UnitySceneRefsBridge.cs`, giữ nguyên GUID). Nhớ commit thay đổi này vào repo game.
 
 Sau đó: `Cmd + Shift + P` → **`Developer: Reload Window`**. Chạy lại đúng lệnh trên bất cứ lúc nào để **cập nhật** lên bản mới.
 
