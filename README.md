@@ -127,7 +127,7 @@ Tuỳ chỉnh qua giao diện Settings hoặc file `.vscode/settings.json`:
 
 ```bash
 npm install
-# tăng "version" trong package.json, rồi:
+# tăng "version" trong package.json, ghi thay đổi vào CHANGELOG.md, rồi:
 npm run release      # compile + đóng gói + cập nhật dist/unity-scene-refs.vsix
 git add -A && git commit -m "Release vX.Y.Z" && git push
 ```
