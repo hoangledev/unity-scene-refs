@@ -78,11 +78,25 @@ Sau đó: `Cmd + Shift + P` → **`Developer: Reload Window`**. Chạy lại đ�
 
 1. Tải [`unity-scene-refs.vsix`](https://github.com/hoangledev/unity-scene-refs/raw/main/dist/unity-scene-refs.vsix).
 2. Trong VS Code / Cursor: `Cmd + Shift + P` → **`Extensions: Install from VSIX...`** → chọn file vừa tải.
-3. Tải [`UnitySceneRefsBridge.cs`](https://github.com/hoangledev/unity-scene-refs/raw/main/unity-editor-script/UnitySceneRefsBridge.cs) và [`UnitySceneRefsBridge.cs.meta`](https://github.com/hoangledev/unity-scene-refs/raw/main/unity-editor-script/UnitySceneRefsBridge.cs.meta) (GUID cố định), đặt cả hai vào một thư mục `Editor` bất kỳ trong `Assets/` của project Unity.
+3. *(Tuỳ chọn — xem [Bridge có bắt buộc không?](#bridge-có-bắt-buộc-không))* Tải [`UnitySceneRefsBridge.cs`](https://github.com/hoangledev/unity-scene-refs/raw/main/unity-editor-script/UnitySceneRefsBridge.cs) và [`UnitySceneRefsBridge.cs.meta`](https://github.com/hoangledev/unity-scene-refs/raw/main/unity-editor-script/UnitySceneRefsBridge.cs.meta) (GUID cố định), đặt cả hai vào một thư mục `Editor` bất kỳ trong `Assets/` của project Unity.
    *(Nếu project đã có `CursorBridge.cs` thì không cần — đừng để cả hai cùng lúc vì sẽ tranh cổng 7892.)*
 4. `Cmd + Shift + P` → **`Developer: Reload Window`**.
 
 > **An toàn cho cả team:** bridge chỉ chạy trong Unity Editor (bọc `#if UNITY_EDITOR`, không có trong bản build). Trên máy **không cài extension**, bridge hoàn toàn không làm gì — không mở cổng, không log — nên có thể commit thẳng vào repo game.
+
+#### Bridge có bắt buộc không?
+
+Không. Thiếu file bridge (`UnitySceneRefsBridge.cs`) thì extension **vẫn chạy được** — bridge chỉ đóng vai trò **hỗ trợ**, không phải then chốt.
+
+| Tính năng | Không có bridge | Có bridge |
+|---|---|---|
+| CodeLens trên method và class, đếm số reference | ✅ | ✅ |
+| Gutter icon, status bar | ✅ | ✅ |
+| Danh sách chi tiết (file `.unity`/`.prefab`/`.anim`, tên GameObject, số dòng) | ✅ | ✅ |
+| Quét, cache, tự cập nhật khi file thay đổi | ✅ | ✅ |
+| **Bấm vào một reference** | Mở file Scene/Prefab dạng YAML trong editor, tại đúng dòng | **Unity tự mở Scene/Prefab, chọn và căn camera vào đúng GameObject** |
+
+Toàn bộ việc tìm reference diễn ra **trong extension**: extension tự đọc file YAML của Unity mà không cần Unity. Bridge chỉ nhận lệnh "chọn object này" qua `localhost:7892` rồi điều khiển Unity Editor.
 
 ---
 
